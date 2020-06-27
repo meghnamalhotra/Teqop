@@ -16,11 +16,13 @@ import {
 } from 'react-native';
 import ImagePath from '../Utility/ImagePath';
 import {Regex} from '../Utility/Constants';
+import RealmDb from '../Utility/RealmDb';
 const array = ['uniqueId', 'firstName', 'lastName', 'description'];
 class UserDetail extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      idCount: 0,
       uniqueId: '',
       firstName: '',
       lastName: '',
@@ -39,6 +41,41 @@ class UserDetail extends Component {
       },
     };
   }
+  findByIdInDb = count => {
+    let idExist = RealmDb.FindDataById(count);
+    if (!idExist) {
+      this.writeDataOnDb();
+      alert('Data Updated Successfully!!');
+      this.props.route.params.readData();
+      this.props.navigation.goBack();
+    } else {
+      alert('Unique Id already exists!!');
+    }
+  };
+  writeDataOnDb = () => {
+    const {idCount, uniqueId, firstName, lastName, description} = this.state;
+    const data = {
+      id: idCount,
+      uniqueId: uniqueId,
+      firstName: firstName,
+      lastName: lastName,
+      description: description,
+    };
+    console.warn('data', data);
+    RealmDb.WriteDb(data);
+  };
+  uniqueIdCheck = () => {
+    const {uniqueId} = this.state;
+    let count = 0;
+    let idArray = uniqueId.split('');
+    idArray.forEach(item => {
+      let digit = Regex.singleDigit.test(item);
+      digit && (count = count + parseInt(item));
+    });
+    console.warn('count', count);
+    this.state.idCount = count;
+    this.findByIdInDb(count);
+  };
   onSubmitPressed = () => {
     const {empty, valid} = this.state;
     array.forEach(item => {
@@ -57,7 +94,7 @@ class UserDetail extends Component {
     let emptyCheck = Object.values(empty);
     let validCheck = Object.values(valid);
     if (!emptyCheck.includes(true) && !validCheck.includes(false)) {
-      alert('Success!!');
+      this.uniqueIdCheck();
     }
     this.setState({});
   };
@@ -84,7 +121,7 @@ class UserDetail extends Component {
         <View style={styles.textInputView}>
           <Text style={styles.title}>{`${title}*`}</Text>
           <TextInput
-            maxLength={parseInt(length)}
+            maxLength={length}
             placeholder={placeholder}
             onChangeText={text => {
               this.state[key] = text;
@@ -110,20 +147,15 @@ class UserDetail extends Component {
           'UNIQUE ID',
           'uniqueId',
           'Enter unique id (Max 10 char.)',
-          '10',
+          10,
         )}
-        {this.getUserDetails(
-          'FIRST NAME',
-          'firstName',
-          'Enter first name',
-          '20',
-        )}
-        {this.getUserDetails('LAST NAME', 'lastName', 'Enter last name', '20')}
+        {this.getUserDetails('FIRST NAME', 'firstName', 'Enter first name', 20)}
+        {this.getUserDetails('LAST NAME', 'lastName', 'Enter last name', 20)}
         {this.getUserDetails(
           'DESCRIPTION',
           'description',
           'Enter description',
-          '100',
+          100,
         )}
         <TouchableOpacity
           onPress={() => {

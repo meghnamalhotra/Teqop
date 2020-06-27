@@ -13,71 +13,35 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-const UserList = [
-  {
-    unique_key: 'abc45',
-    name: 'Meghna Malhotra',
-    description:
-      'I am react native developerjsabdjaj,BDJEBFB<SHDFKAKJSFKFDBJSkhkdsjfchnsdkjfnkjsndkfgndfjkngkjdbgjbncfjgnjdfngbjdfngbjb',
-  },
-  {
-    unique_key: 'abc411',
-    name: 'Kanishk Gupta',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'a499',
-    name: 'Sanya Tuli',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'ui65',
-    name: 'Varun Kumar',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'zxi44',
-    name: 'Sonali kapoor',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'zxi44',
-    name: 'Sonali kapoor',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'zxi44',
-    name: 'Sonali kapoor',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'zxi44',
-    name: 'Sonali kapoor',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'zxi44',
-    name: 'Sonali kapoor',
-    description: 'I am react native developer',
-  },
-  {
-    unique_key: 'zxi44',
-    name: 'Sonali kapoor',
-    description: 'I am react native developer',
-  },
-];
+import RealmDb from '../Utility/RealmDb';
 class UserListing extends Component {
+  constructor() {
+    super();
+    this.state = {
+      userList: null,
+    };
+  }
+  readData = () => {
+    const data = RealmDb.ReadDb();
+    this.setState({userList: data});
+  };
+  componentDidMount() {
+    this.readData();
+  }
   addNewButton = () => {
     return (
       <TouchableOpacity
         style={styles.addNewButton}
-        onPress={() => this.props.navigation.push('UserDetail')}>
+        onPress={() =>
+          this.props.navigation.push('UserDetail', {readData: this.readData})
+        }>
         <Text style={styles.buttonText}>+ ADD NEW USER</Text>
       </TouchableOpacity>
     );
   };
   userListDetails = ({item}) => {
-    const imageText = item.name.charAt(0);
+    const name = `${item.firstName} ${item.lastName}`;
+    const imageText = item.firstName.charAt(0).toUpperCase();
     return (
       <View style={styles.userCard}>
         <View style={styles.imageView}>
@@ -85,14 +49,14 @@ class UserListing extends Component {
         </View>
         <View style={styles.textView}>
           <Text style={styles.name} numberOfLines={1}>
-            {item.name}
+            {name}
           </Text>
           <Text style={styles.description} numberOfLines={3}>
             {item.description}
           </Text>
         </View>
         <View style={styles.uniqueIdView}>
-          <Text style={styles.uniqueId}>{item.unique_key}</Text>
+          <Text style={styles.uniqueId}>{item.uniqueId}</Text>
         </View>
       </View>
     );
@@ -102,17 +66,18 @@ class UserListing extends Component {
       <FlatList
         showsVerticalScrollIndicator={false}
         style={styles.listMainView}
-        data={UserList}
+        data={this.state.userList}
         renderItem={this.userListDetails}
-        keyExtractor={item => item.unique_key}
+        keyExtractor={item => item.uniqueId}
       />
     );
   };
   render() {
+    const {userList} = this.state;
     return (
       <SafeAreaView style={styles.container}>
         {this.addNewButton()}
-        {this.userListingView()}
+        {userList && this.userListingView()}
       </SafeAreaView>
     );
   }
