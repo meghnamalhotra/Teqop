@@ -8,12 +8,59 @@ import React, {Component} from 'react';
 import {
   StyleSheet,
   SafeAreaView,
+  View,
   Text,
+  TextInput,
   Image,
   TouchableOpacity,
 } from 'react-native';
 import ImagePath from '../Utility/ImagePath';
+import {Regex} from '../Utility/Constants';
+const array = ['uniqueId', 'firstName', 'lastName', 'description'];
 class UserDetail extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      uniqueId: '',
+      firstName: '',
+      lastName: '',
+      description: '',
+      valid: {
+        uniqueId: true,
+        firstName: true,
+        lastName: true,
+        description: true,
+      },
+      empty: {
+        uniqueId: false,
+        firstName: false,
+        lastName: false,
+        description: false,
+      },
+    };
+  }
+  onSubmitPressed = () => {
+    const {empty, valid} = this.state;
+    array.forEach(item => {
+      if (!this.state[item]) {
+        empty[item] = true;
+      } else {
+        if (item === 'uniqueId') {
+          let test = Regex.alphanumeric.test(this.state[item]);
+          !test && (valid[item] = false);
+        } else if (item === 'firstName' || item === 'lastName') {
+          let test = Regex.name.test(this.state[item]);
+          !test && (valid[item] = false);
+        }
+      }
+    });
+    let emptyCheck = Object.values(empty);
+    let validCheck = Object.values(valid);
+    if (!emptyCheck.includes(true) && !validCheck.includes(false)) {
+      alert('Success!!');
+    }
+    this.setState({});
+  };
   header = () => {
     const {navigation} = this.props;
     return (
@@ -30,11 +77,69 @@ class UserDetail extends Component {
       </TouchableOpacity>
     );
   };
+  getUserDetails = (title, key, placeholder, length) => {
+    const {valid, empty} = this.state;
+    return (
+      <View style={{marginHorizontal: 25}}>
+        <View style={styles.textInputView}>
+          <Text style={styles.title}>{`${title}*`}</Text>
+          <TextInput
+            maxLength={parseInt(length)}
+            placeholder={placeholder}
+            onChangeText={text => {
+              this.state[key] = text;
+              empty[key] = false;
+              valid[key] = true;
+              this.setState({});
+            }}
+          />
+        </View>
+        {!valid[key] && (
+          <Text style={styles.errorText}>{`Please enter valid ${title}`}</Text>
+        )}
+        {empty[key] && (
+          <Text style={styles.errorText}>{`Please enter ${title}`}</Text>
+        )}
+      </View>
+    );
+  };
+  textView = () => {
+    return (
+      <View style={styles.textMainView}>
+        {this.getUserDetails(
+          'UNIQUE ID',
+          'uniqueId',
+          'Enter unique id (Max 10 char.)',
+          '10',
+        )}
+        {this.getUserDetails(
+          'FIRST NAME',
+          'firstName',
+          'Enter first name',
+          '20',
+        )}
+        {this.getUserDetails('LAST NAME', 'lastName', 'Enter last name', '20')}
+        {this.getUserDetails(
+          'DESCRIPTION',
+          'description',
+          'Enter description',
+          '100',
+        )}
+        <TouchableOpacity
+          onPress={() => {
+            this.onSubmitPressed();
+          }}
+          style={styles.buttonView}>
+          <Text style={styles.buttonText}>SUBMIT</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
   render() {
     return (
       <SafeAreaView style={styles.container}>
         {this.header()}
-        <Text>UserDetail</Text>
+        {this.textView()}
       </SafeAreaView>
     );
   }
@@ -43,16 +148,50 @@ export default UserDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#008080',
+  },
+  headerImgView: {
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  buttonView: {
+    backgroundColor: '#22beab',
+    paddingVertical: 10,
+    marginHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerImgView: {
-    position: 'absolute',
-    top: 20,
-    left: 16,
+  textInputView: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#008080',
+    marginVertical: 10,
+  },
+  errorText: {
+    fontSize: 11,
+    color: 'red',
+  },
+  textMainView: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    marginHorizontal: 16,
+    paddingTop: 30,
+  },
+  title: {
+    fontSize: 14,
+    color: '#008080',
+    fontWeight: 'bold',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   headerImg: {
     height: 20,
     width: 20,
+    tintColor: '#fff',
   },
 });
