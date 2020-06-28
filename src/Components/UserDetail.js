@@ -13,6 +13,7 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from 'react-native';
 import ImagePath from '../Utility/ImagePath';
 import {Regex} from '../Utility/Constants';
@@ -117,7 +118,7 @@ class UserDetail extends Component {
   getUserDetails = (title, key, placeholder, length) => {
     const {valid, empty} = this.state;
     return (
-      <View style={{marginHorizontal: 25}}>
+      <View style={styles.userDetailView}>
         <View style={styles.textInputView}>
           <Text style={styles.title}>{`${title}*`}</Text>
           <TextInput
@@ -170,8 +171,10 @@ class UserDetail extends Component {
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        {this.header()}
-        {this.textView()}
+        <KeyboardAvoidingView behavior="padding" style={styles.keyboardView}>
+          {this.header()}
+          {this.textView()}
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   }
@@ -181,6 +184,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#008080',
+  },
+  userDetailView: {
+    marginHorizontal: 25,
   },
   headerImgView: {
     paddingVertical: 20,
@@ -205,11 +211,10 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   textMainView: {
-    flex: 1,
     backgroundColor: '#fff',
     borderRadius: 20,
     marginHorizontal: 16,
-    paddingTop: 30,
+    paddingVertical: 30,
   },
   title: {
     fontSize: 14,
