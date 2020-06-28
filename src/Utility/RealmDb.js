@@ -10,7 +10,6 @@ const UserSchema = {
   },
 };
 class RealmDb {
-  pageSize = 20;
   constructor() {
     this.realmObj = new Realm({schema: [UserSchema]});
   }

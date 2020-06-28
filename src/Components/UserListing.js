@@ -72,12 +72,24 @@ class UserListing extends Component {
       />
     );
   };
+  emptyView = () => {
+    return (
+      <View style={styles.noDataView}>
+        <Text style={styles.noDataText}>No User Found!!</Text>
+        <Text style={styles.noDataText}>
+          Click on add new user to create first user.
+        </Text>
+      </View>
+    );
+  };
   render() {
     const {userList} = this.state;
     return (
       <SafeAreaView style={styles.container}>
         {this.addNewButton()}
-        {userList && this.userListingView()}
+        {userList && userList.length
+          ? this.userListingView()
+          : this.emptyView()}
       </SafeAreaView>
     );
   }
@@ -87,6 +99,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#C0C0C0',
+  },
+  noDataView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noDataText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   listMainView: {
     backgroundColor: '#fff',
